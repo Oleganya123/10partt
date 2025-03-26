@@ -52,14 +52,15 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void addUser(User user) {
-        String generatedPassword = UUID.randomUUID().toString().substring(0, 12);
-        user.setPassword(passwordEncoder.encode(generatedPassword));
+    public void addUser(User user, String password) {
+        if (password == null || password.isEmpty()) {
+            password = UUID.randomUUID().toString().substring(0, 12);
+        }
+        user.setPassword(passwordEncoder.encode(password));
 
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             throw new IllegalArgumentException("User must have at least one role");
         }
-
         userRepository.save(user);
     }
 

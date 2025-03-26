@@ -36,19 +36,15 @@ public class AdminController {
     @PostMapping("/users/add")
     public String addUser(@ModelAttribute("user") User user,
                           @RequestParam List<Long> roleIds,
+                          @RequestParam(required = false) String password,
                           Model model) {
-
         try {
-            System.out.println("Adding user with roles: " + roleIds);
             Set<Role> roles = roleIds.stream()
-                    .map(roleId -> roleRepository.findById(roleId).orElseThrow(() ->
-                            new IllegalArgumentException("Role not found")))
+                    .map(roleId -> roleRepository.findById(roleId).orElseThrow())
                     .collect(Collectors.toSet());
             user.setRoles(roles);
-
-            userService.addUser(user);
+            userService.addUser(user, password);
             return "redirect:/admin/users";
-
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("users", userService.getAllUsers());
@@ -61,7 +57,8 @@ public class AdminController {
     public String updateUser(@RequestParam Long id,
                              @RequestParam String name,
                              @RequestParam String email,
-                             @RequestParam List<Long> roleIds) {
+                             @RequestParam List<Long> roleIds,
+                             @RequestParam(required = false) String newPassword) {
         User user = userService.getUserById(id);
         user.setName(name);
         user.setEmail(email);
@@ -71,7 +68,7 @@ public class AdminController {
                 .collect(Collectors.toSet());
         user.setRoles(roles);
 
-        userService.updateUser(user, null);
+        userService.updateUser(user, newPassword);
         return "redirect:/admin/users";
     }
 

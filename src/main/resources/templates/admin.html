@@ -28,6 +28,11 @@
             <label>Email: <input type="email" name="email" required></label>
         </div>
         <div>
+            <label>Password:
+                <input type="password" name="password">
+            </label>
+        </div>
+        <div>
             <label>Roles:
                 <select name="roleIds" multiple="multiple" required="required">
                     <option th:each="role : ${allRoles}"
@@ -66,6 +71,12 @@
                     <input type="hidden" name="id" th:value="${user.id}">
                     <input type="text" name="name" th:value="${user.name}" required>
                     <input type="email" name="email" th:value="${user.email}" required>
+                    <div>
+                        <label>New Password:
+                            <input type="password" name="newPassword">
+                        </label>
+                    </div>
+
                     <select name="roleIds" multiple="multiple" required="required">
                         <option th:each="role : ${allRoles}"
                                 th:value="${role.id}"

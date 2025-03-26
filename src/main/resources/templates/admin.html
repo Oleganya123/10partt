@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        .error { color: red; }
+        table { border-collapse: collapse; margin: 20px 0; width: 100%; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        .action-form { display: inline-block; margin-right: 5px; }
+        select { min-width: 150px; height: 100px; }
+    </style>
+</head>
+<body>
+
+<div th:if="${error}" style="color:red" th:text="${error}"></div>
+
+<div sec:authorize="hasRole('ADMIN')">
+    <h1>Admin Panel</h1>
+
+    <form th:action="@{/admin/users/add}" method="post">
+        <h2>Add New User</h2>
+        <div>
+            <label>Name: <input type="text" name="name" required></label>
+        </div>
+        <div>
+            <label>Email: <input type="email" name="email" required></label>
+        </div>
+        <div>
+            <label>Roles:
+                <select name="roleIds" multiple="multiple" required="required">
+                    <option th:each="role : ${allRoles}"
+                            th:value="${role.id}"
+                            th:text="${role.name}">
+                    </option>
+                </select>
+            </label>
+        </div>
+        <button type="submit">Add User</button>
+    </form>
+
+    <h2>Users List</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.name}"></td>
+            <td th:text="${user.email}"></td>
+            <td>
+                <span th:each="role, iter : ${user.roles}"
+                      th:text="${role.name} + (${iter.last} ? '' : ', ')">
+                </span>
+            </td>
+            <td>
+                <form class="action-form" th:action="@{/admin/users/update}" method="post">
+                    <input type="hidden" name="id" th:value="${user.id}">
+                    <input type="text" name="name" th:value="${user.name}" required>
+                    <input type="email" name="email" th:value="${user.email}" required>
+                    <select name="roleIds" multiple="multiple" required="required">
+                        <option th:each="role : ${allRoles}"
+                                th:value="${role.id}"
+                                th:text="${role.name}"
+                                th:selected="${user.roles.contains(role)}">
+                        </option>
+                    </select>
+                    <button type="submit">Update</button>
+                </form>
+                <form class="action-form" th:action="@{/admin/users/delete}" method="post">
+                    <input type="hidden" name="id" th:value="${user.id}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+
+<div sec:authorize="!hasRole('ADMIN')">
+    <h1 style="color: red">Access Denied!</h1>
+    <a th:href="@{/}">Go to Home Page</a>
+</div>
+</body>
+</html>
